@@ -10,19 +10,31 @@ def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
 
-
 def deleteMatches():
     """Remove all the match records from the database."""
-
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("DELETE FROM match;")    
+    dB.commit()
+    dB.close()
 
 def deletePlayers():
     """Remove all the player records from the database."""
-
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("DELETE FROM player;")
+    dB.commit()
+    dB.close()
 
 def countPlayers():
     """Returns the number of players currently registered."""
-
-
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("SELECT count(*) FROM player;")
+    numPlayers = cursor.fetchall()[0][0]
+    dB.close()
+    return numPlayers
+ 
 def registerPlayer(name):
     """Adds a player to the tournament database.
   
@@ -32,6 +44,11 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("INSERT INTO player (name) VALUES (%s);", (name,))
+    dB.commit()
+    dB.close()
 
 
 def playerStandings():
@@ -40,14 +57,18 @@ def playerStandings():
     The first entry in the list should be the player in first place, or a player
     tied for first place if there is currently a tie.
 
-    Returns:
-      A list of tuples, each of which contains (id, name, wins, matches):
-        id: the player's unique id (assigned by the database)
-        name: the player's full name (as registered)
-        wins: the number of matches the player has won
-        matches: the number of matches the player has played
-    """
+    Returns:       A list of tuples, each of which contains (id, name, wins,matches):
+                   id: the player's unique id (assigned by the database)
+                   name: the player's full name (as registered)         
+                   wins: the number of matches the player has won         
+                   matches: the number of matches the player has played     """
 
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute('SELECT * from Standings order by wins desc')
+    return cursor.fetchall()
+    dB.close()
+	
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -56,6 +77,11 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("INSERT INTO match VALUES (%s, %s);", (winner, loser))
+    dB.commit()
+    dB.close()
  
  
 def swissPairings():
@@ -73,5 +99,9 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-
-
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("SELECT * from Matches;")
+    matches = cursor.fetchall()
+    return matches
+    dB.close()
