@@ -124,6 +124,76 @@ def testPairings():
             "After one match, players with one win should be paired.")
     print "8. After one match, players with one win are paired."
 
+def testPairingsOdd():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Player1")
+    registerPlayer("Player2")
+    registerPlayer("Player3")
+    registerPlayer("Player4")
+    registerPlayer("Player5")
+    registerPlayer("Player6")
+    registerPlayer("Player7")
+    standings = playerStandings()
+    [id1, id2, id3, id4, id5, id6, id7] = [row[0] for row in standings]
+    reportMatch(id1, id2)
+    reportMatch(id4, id3)
+    reportMatch(id5, id6)
+    reportMatch(id7)
+    reportMatch(id1, id4)
+    reportMatch(id5, id7)
+    reportMatch(id2, id3)
+    reportMatch(id6)
+
+    pairings = swissPairings()
+    if len(pairings) != 4:
+        raise ValueError(
+            "For seven players, swissPairings should return three pairs and a bye.")
+    [(pid1, pname1, pid2, pname2), (pid3, pname3, pid4, pname4), (pid5, pname5, pid6, pname6), (pid7, pname7, pid8, pname8)] = pairings
+    correct_pairs = set([frozenset([id1, id5]), frozenset([id2, id4]),  frozenset([id6, id7]),  frozenset([id3, None])])
+    actual_pairs = set([frozenset([pid1, pid2]), frozenset([pid3, pid4]), frozenset([pid5, pid6]), frozenset([pid7, pid8])])
+    if correct_pairs != actual_pairs:
+        raise ValueError(
+            "After two matches, players with two wins should be paired.")
+    print "9. After two matches, players with two wins should be paired."
+
+def testPairingsBye():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Player1")
+    registerPlayer("Player2")
+    registerPlayer("Player3")
+    registerPlayer("Player4")
+    registerPlayer("Player5")
+    registerPlayer("Player6")
+    registerPlayer("Player7")
+    standings = playerStandings()
+    [id1, id2, id3, id4, id5, id6, id7] = [row[0] for row in standings]
+    reportMatch(id1, id2)
+    reportMatch(id4, id3)
+    reportMatch(id5, id6)
+    reportMatch(id7)
+    reportMatch(id1, id4)
+    reportMatch(id5, id7)
+    reportMatch(id2, id3)
+    reportMatch(id6)
+    reportMatch(id1, id5)
+    reportMatch(id2, id6)
+    reportMatch(id7, id4)
+    reportMatch(id3,)
+
+    pairings = swissPairings()
+    if len(pairings) != 4:
+        raise ValueError(
+            "For seven players, swissPairings should return three pairs and a bye.")
+    [(pid1, pname1, pid2, pname2), (pid3, pname3, pid4, pname4), (pid5, pname5, pid6, pname6), (pid7, pname7, pid8, pname8)] = pairings
+    correct_pairs = set([frozenset([id1, id2]), frozenset([id5, id7]),  frozenset([id3, id6]),  frozenset([id4, None])])
+    actual_pairs = set([frozenset([pid1, pid2]), frozenset([pid3, pid4]), frozenset([pid5, pid6]), frozenset([pid7, pid8])])
+    if correct_pairs != actual_pairs:
+        raise ValueError(
+            "After three matches, the player (Player3) with previous bye should not have another.")
+    print "10. After three matches, the player (Player3) with previous bye should not have another."
+
 
 if __name__ == '__main__':
     testDeleteMatches()
@@ -134,6 +204,8 @@ if __name__ == '__main__':
     testStandingsBeforeMatches()
     testReportMatches()
     testPairings()
+    testPairingsOdd()
+    testPairingsBye()
     print "Success!  All tests pass!"
 
 
