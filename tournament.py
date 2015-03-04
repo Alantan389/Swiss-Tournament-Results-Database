@@ -36,7 +36,7 @@ def countPlayers():
     return numPlayers
 
 def countWinners():
-    """Returns the number of players currently registered."""
+    """Returns the number of players that have scored a win."""
     dB = connect()
     cursor = dB.cursor()
     cursor.execute("SELECT count(*) FROM Winners;")
