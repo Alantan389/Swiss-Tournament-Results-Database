@@ -194,6 +194,26 @@ def testPairingsBye():
             "After three matches, the player (Player3) with previous bye should not have another.")
     print "10. After three matches, the player (Player3) with previous bye should not have another."
 
+def testPairingsDraw():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Twilight Sparkle")
+    registerPlayer("Fluttershy")
+    registerPlayer("Applejack")
+    registerPlayer("Pinkie Pie")
+    standings = playerStandings()
+    [id1, id2, id3, id4] = [row[0] for row in standings]
+    reportMatch(id1, id2)
+    reportMatch(id3, id4, False)
+    pairings = swissPairings()
+    if len(pairings) != 2:
+        raise ValueError(
+            "For four players, swissPairings should return two pairs.")
+    c = countWinners()
+    if c != 1:
+        raise ValueError(
+            "After 2 matches, there should be only 1 winner due to draw.")
+    print "11. After 2 matches, there should be only 1 winner due to draw."
 
 if __name__ == '__main__':
     testDeleteMatches()
@@ -206,6 +226,7 @@ if __name__ == '__main__':
     testPairings()
     testPairingsOdd()
     testPairingsBye()
+    testPairingsDraw()
     print "Success!  All tests pass!"
 
 

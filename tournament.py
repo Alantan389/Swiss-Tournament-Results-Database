@@ -34,6 +34,15 @@ def countPlayers():
     numPlayers = cursor.fetchall()[0][0]
     dB.close()
     return numPlayers
+
+def countWinners():
+    """Returns the number of players currently registered."""
+    dB = connect()
+    cursor = dB.cursor()
+    cursor.execute("SELECT count(*) FROM Winners;")
+    numWinners = cursor.fetchall()[0][0]
+    dB.close()
+    return numWinners
  
 def registerPlayer(name):
     """Adds a player to the tournament database.
@@ -70,18 +79,19 @@ def playerStandings():
     dB.close()
 	
 
-def reportMatch(winner, loser = 0):
+def reportMatch(winner, loser = 0, result = True):
     """Records the outcome of a single match between two players.
 
     Args:
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
       Note: if loser omitted the winner was a bye (gets credited a win for the bye).
+      True: the result flag, if false the match was a draw.
 
     """
     dB = connect()
     cursor = dB.cursor()
-    cursor.execute("INSERT INTO match VALUES (%s, %s);", (winner, loser))
+    cursor.execute("INSERT INTO match VALUES (%s, %s, %s);", (winner, loser, result))
     dB.commit()
     dB.close()
  
