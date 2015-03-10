@@ -187,12 +187,12 @@ def testPairingsBye():
         raise ValueError(
             "For seven players, swissPairings should return three pairs and a bye.")
     [(pid1, pname1, pid2, pname2), (pid3, pname3, pid4, pname4), (pid5, pname5, pid6, pname6), (pid7, pname7, pid8, pname8)] = pairings
-    correct_pairs = set([frozenset([id1, id2]), frozenset([id5, id7]),  frozenset([id3, id6]),  frozenset([id4, None])])
+    correct_pairs = set([frozenset([id1, id5]), frozenset([id2, id7]),  frozenset([id6, id3]),  frozenset([id4, None])])
     actual_pairs = set([frozenset([pid1, pid2]), frozenset([pid3, pid4]), frozenset([pid5, pid6]), frozenset([pid7, pid8])])
     if correct_pairs != actual_pairs:
         raise ValueError(
-            "After three matches, the player (Player3) with previous bye should not have another.")
-    print "10. After three matches, the player (Player3) with previous bye should not have another."
+            "After three matches, the player (Player3) with previous bye should not have another. Also, players 1 and 5 play again due to opponent win rankings.")
+    print "10. After three matches, the player (Player3) with previous bye should not have another. Also, players 1 and 5 play again due to opponent win rankings."
 
 def testPairingsDraw():
     deleteMatches()
@@ -228,5 +228,4 @@ if __name__ == '__main__':
     testPairingsBye()
     testPairingsDraw()
     print "Success!  All tests pass!"
-
 

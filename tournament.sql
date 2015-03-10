@@ -38,7 +38,7 @@ CREATE VIEW Losers AS SELECT losingplayer, count(losingplayer) AS losses FROM ma
 -- and the number of draws they have from the Match table. We don't need to count the players in the second postion who had draws
 -- because they will be counted as losers.
 --
-CREATE VIEW Player1Draws AS SELECT winningplayer as player1, count(winningplayer) AS draws FROM match WHERE resultFlag = False GROUP BY winningplayer;
+CREATE VIEW Player1Draws AS SELECT winningplayer AS player1, count(winningplayer) AS draws FROM match WHERE resultFlag = False GROUP BY winningplayer;
 --
 --
 -- The standings view creates a table listing each player in descending order of the number of wins they have had.
@@ -50,7 +50,19 @@ CREATE VIEW Player1Draws AS SELECT winningplayer as player1, count(winningplayer
 --
 CREATE VIEW Standings AS SELECT Player.id, Player.name, coalesce(Winners.wins, 0) AS wins, coalesce(Losers.losses , 0) + coalesce(Winners.wins, 0) + coalesce(Player1Draws.draws, 0) AS matches FROM Player LEFT JOIN Winners ON Player.id = Winners.winningplayer LEFT JOIN Losers ON Player.id = Losers.losingplayer LEFT JOIN Player1Draws ON Player.id = Player1Draws.player1;
 --
--- The Matches view creates a view over the standings view that shows the potential match ups for the next round.
+--
+-- The ranked view creates a table listing each player in descending order of the number of wins they have had followed
+-- by the number of wins their opponents have had.
+--      id, name, number of wins, number of opponent match wins.
+--
+-- 		This is a re-ranking of the Standings view.
+--      The number of matches that each player's opponents have won are counted using 2 sub-queries and a union.
+--      The Standings view itself is used to look up the number of wins, accessed via the alias of 'baseStandings'.
+--
+CREATE VIEW Rankings AS SELECT baseStandings.id, name, wins, (SELECT sum(wins) AS oppWins FROM(select winningPlayer AS opponent, wins FROM Match LEFT JOIN Standings ON id = winningPlayer WHERE losingPlayer = bASeStandings.id UNION select losingPlayer AS opponent, wins FROM Match LEFT JOIN Standings ON id = losingPlayer WHERE winningPlayer = baseStandings.id) AS foo) FROM Standings AS baseStandings ORDER BY wins DESC, oppWins DESC;
+
+--
+-- The Matches view creates a view over the Rankings view that shows the potential match ups for the next round.
 --		id1, name1, id2, name2
 --
 -- 		This view uses PostgreSQL's function 'lead' to match each pair of players in the Standings view in descending order
@@ -59,4 +71,5 @@ CREATE VIEW Standings AS SELECT Player.id, Player.name, coalesce(Winners.wins, 0
 --
 --      Note: this view will need to be iterated in code to remove and re-match those players who may have already played each
 --      other.
-CREATE VIEW Matches AS SELECT id1, name1, id2, name2 FROM (SELECT *, row_number() over(ORDER BY NULL) FROM (SELECT id AS id1, name AS name1, lead(id, 1) over (ORDER BY wins desc, id) AS id2, lead(name, 1) over (ORDER BY wins desc, id) AS name2 FROM Standings) AS foo) AS foo WHERE row_number % 2 != 0;
+CREATE VIEW Matches AS SELECT id1, name1, id2, name2 FROM (SELECT *, row_number() over(ORDER BY NULL) FROM (SELECT id AS id1, name AS name1, lead(id, 1) over (ORDER BY wins desc, oppWins desc, id) AS id2, lead(name, 1) over (ORDER BY wins desc, oppWins desc, id) AS name2 FROM Rankings) AS foo) AS foo WHERE row_number % 2 != 0;
+

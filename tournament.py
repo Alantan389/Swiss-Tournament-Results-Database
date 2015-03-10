@@ -155,9 +155,8 @@ def swissPairings():
                 # Increment swap number so that if another bye swap is needed, the next player up is swapped!
                 swapNumber += 1
             else:
-                # Player with bye was not found to have a previous by, so this is ok; we can exit loop
+                # Player with bye was not found to have a previous bye, so this is ok; we can exit loop
                 byeOk = True
-
 
     return matches
     dB.close()
