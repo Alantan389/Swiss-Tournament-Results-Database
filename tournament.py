@@ -75,9 +75,9 @@ def playerStandings():
     dB = connect()
     cursor = dB.cursor()
     cursor.execute('SELECT * from Standings order by wins desc, id;')
-    return cursor.fetchall()
+    standings = cursor.fetchall()
     dB.close()
-	
+    return standings
 
 def reportMatch(winner, loser = 0, result = True):
     """Records the outcome of a single match between two players.
@@ -158,5 +158,5 @@ def swissPairings():
                 # Player with bye was not found to have a previous bye, so this is ok; we can exit loop
                 byeOk = True
 
-    return matches
     dB.close()
+    return matches
